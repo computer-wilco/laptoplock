@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vergrendeld</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2d2d2d;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            user-select: none; /* Voorkomt tekstselectie */
+            -webkit-user-select: none; /* Voor oudere WebKit browsers */
+            -ms-user-select: none; /* Voor nog oudere browsers */
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 18px;
+            margin: 10px 0 30px;
+            opacity: 0.8;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .link-button {
+            font-size: 16px;
+            color: white;
+            text-decoration: none;
+            margin-top: 20px;
+            display: block;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .link-button:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="lock-icon">🔒</div>
+    <h1>Tijd voor een pauze</h1>
+    <p>Je ouder heeft dit apparaat vergrendeld</p>
+
+    <a class="link-button" onclick="shutdown()">Afsluiten</a>
+
+    <script>
+        function shutdown() {
+            if (confirm('Weet je het zeker?')) {
+                window.api.shutdown();
+            }
+        }
+    </script>
+</body>
+</html>

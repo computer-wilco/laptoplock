@@ -1,0 +1,27 @@
+{
+  "name": "laptopvergrendeling",
+  "version": "1.0.0",
+  "description": "Zorgt dat mijn laptop vergrendeld wordt",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "update": "npx -y Jelmerro/nus",
+    "build-windows": "electron-builder -w",
+    "build-mac": "electron-builder -m dmg",
+    "build-mac-zip": "electron-builder -m zip",
+    "build-linux": "electron-builder -l",
+    "build-all": "electron-builder -w -l -m zip"
+  },
+  "keywords": [
+    "electron"
+  ],
+  "author": "Wilco Joosen",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "1.7.9"
+  },
+  "devDependencies": {
+    "electron": "34.0.1",
+    "electron-builder": "25.1.8"
+  }
+}
