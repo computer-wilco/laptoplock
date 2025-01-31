@@ -8,6 +8,7 @@ let lockWindows = []; // Array voor meerdere vergrendelvensters
 let allowClose = false;
 
 const SERVER_STATUS_URL = 'https://wapi.djoamersfoort.nl/laptop/status/';
+const SCHEDULE_API_URL = "https://wapi.djoamersfoort.nl/laptop/schedule/";
 const CHECK_INTERVAL = 2500; // Controleer elke 2,5 seconden
 
 // Maak hoofdvenster
@@ -89,6 +90,47 @@ async function checkStatus() {
     }
 }
 
+async function checkLockStatus() {
+    try {
+        const response = await axios.get(SCHEDULE_API_URL);
+        const { lock_time, unlock_time } = response.data;
+
+        const currentTime = new Date().toTimeString().slice(0, 5); // HH:MM
+
+        let shouldLock = false;
+
+        if (lock_time < unlock_time) {
+            // Normale situatie (bijv. 20:00 - 08:00)
+            if (currentTime >= lock_time && currentTime < unlock_time) {
+                shouldLock = true;
+            }
+        } else {
+            // Om middernacht heen (bijv. 22:00 - 06:00)
+            if (currentTime >= lock_time || currentTime < unlock_time) {
+                shouldLock = true;
+            }
+        }
+
+        if (shouldLock && lockWindows.length === 0) {
+            await axios.post(SERVER_STATUS_URL, { locked: true }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            createLockWindows();
+            checkStatus();
+            if (mainWindow) mainWindow.hide();
+        } else if (!shouldLock && lockWindows.length > 0) {
+            await axios.post(SERVER_STATUS_URL, { locked: false }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            closeLockWindows();
+            if (mainWindow) mainWindow.show();
+        }
+    } catch (err) {
+        console.error("Fout bij ophalen schema:", err);
+    }
+}
+
+
 // Sluit computer af via knop
 ipcMain.on('shutdown', () => {
     exec('shutdown now', (err) => {
@@ -98,8 +140,10 @@ ipcMain.on('shutdown', () => {
 
 // Start Electron-app
 app.whenReady().then(() => {
+    app.commandLine.appendSwitch('no-proxy-server');
     createMainWindow();
     setInterval(checkStatus, CHECK_INTERVAL);
+    setInterval(checkLockStatus, CHECK_INTERVAL);
 });
 
 // Sluit volledig af als de app wordt gesloten (behalve op macOS)

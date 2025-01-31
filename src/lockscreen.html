@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vergrendeld</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             margin: 0;
@@ -16,9 +17,7 @@
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
-            user-select: none; /* Voorkomt tekstselectie */
-            -webkit-user-select: none; /* Voor oudere WebKit browsers */
-            -ms-user-select: none; /* Voor nog oudere browsers */
+            user-select: none;
         }
 
         h1 {
@@ -49,7 +48,6 @@
 
         .link-button:hover {
             opacity: 1;
-            text-decoration: underline;
         }
     </style>
 </head>
@@ -58,13 +56,73 @@
     <h1>Tijd voor een pauze</h1>
     <p>Je ouder heeft dit apparaat vergrendeld</p>
 
-    <a class="link-button" onclick="shutdown()">Afsluiten</a>
+    <a class="link-button" onclick="confirmShutdown()">Afsluiten</a>
+    <a class="link-button" onclick="parentAccess()">Toegang door ouders</a>
 
     <script>
-        function shutdown() {
-            if (confirm('Weet je het zeker?')) {
-                window.api.shutdown();
-            }
+
+        function confirmShutdown() {
+            Swal.fire({
+                title: 'Weet je het zeker?',
+                text: "Je apparaat wordt afgesloten.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ja, afsluiten',
+                cancelButtonText: 'Annuleren'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.api.shutdown();
+                }
+            });
+        }
+
+        function parentAccess() {
+            Swal.fire({
+                title: 'Ouder toegang',
+                input: 'password',
+                inputLabel: 'Voer het wachtwoord in',
+                inputPlaceholder: 'Wachtwoord',
+                inputAttributes: {
+                    autocapitalize: 'off',
+                    autocorrect: 'off'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Verifiëren',
+                cancelButtonText: 'Annuleren',
+                preConfirm: (password) => {
+                    return fetch('https://wilcoadmin.djoamersfoort.nl/verifieerlaptop.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `password=${encodeURIComponent(password)}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error('Onjuist wachtwoord');
+                        }
+                        return data;
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(error.message);
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('https://wapi.djoamersfoort.nl/laptop/status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({locked : false})
+                    });
+
+                    Swal.fire({
+                        title: 'Succes!',
+                        text: 'Het apparaat is ontgrendeld.',
+                        icon: 'success'
+                    });
+                }
+            });
         }
     </script>
 </body>
