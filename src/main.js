@@ -72,26 +72,11 @@ function closeLockWindows() {
     globalShortcut.unregisterAll();
 }
 
-// Controleer serverstatus en vergrendel/ontgrendel
-async function checkStatus() {
-    try {
-        const response = await axios.get(SERVER_STATUS_URL);
-        const { locked } = response.data;
-
-        if (locked && lockWindows.length === 0) {
-            createLockWindows();
-            if (mainWindow) mainWindow.hide();
-        } else if (!locked && lockWindows.length > 0) {
-            closeLockWindows();
-            if (mainWindow) mainWindow.show();
-        }
-    } catch (err) {
-        console.error('Fout bij het ophalen van de status:', err);
-    }
-}
-
 async function checkLockStatus() {
     try {
+        const response1 = await axios.get(SERVER_STATUS_URL);
+        const { locked } = response1.data;
+
         const response = await axios.get(SCHEDULE_API_URL);
         const { lock_time, unlock_time } = response.data;
 
@@ -111,17 +96,26 @@ async function checkLockStatus() {
             }
         }
 
+        
+
         if (shouldLock && lockWindows.length === 0) {
             await axios.post(SERVER_STATUS_URL, { locked: true }, {
                 headers: { 'Content-Type': 'application/json' }
             });
             createLockWindows();
-            checkStatus();
             if (mainWindow) mainWindow.hide();
         } else if (!shouldLock && lockWindows.length > 0) {
             await axios.post(SERVER_STATUS_URL, { locked: false }, {
                 headers: { 'Content-Type': 'application/json' }
             });
+            closeLockWindows();
+            if (mainWindow) mainWindow.show();
+        }
+
+        if (locked && lockWindows.length === 0) {
+            createLockWindows();
+            if (mainWindow) mainWindow.hide();
+        } else if (!locked && lockWindows.length > 0) {
             closeLockWindows();
             if (mainWindow) mainWindow.show();
         }
@@ -142,7 +136,6 @@ ipcMain.on('shutdown', () => {
 app.whenReady().then(() => {
     app.commandLine.appendSwitch('no-proxy-server');
     createMainWindow();
-    setInterval(checkStatus, CHECK_INTERVAL);
     setInterval(checkLockStatus, CHECK_INTERVAL);
 });
 
