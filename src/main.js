@@ -1,11 +1,14 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, Menu, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, globalShortcut, Menu, screen, ipcRenderer } = require('electron');
 const { exec } = require('child_process');
+const { io } = require("socket.io-client");
 const path = require('path');
 const axios = require('axios');
 
 let mainWindow;
 let lockWindows = []; // Array voor meerdere vergrendelvensters
 let allowClose = false;
+
+const socket = io("wss://wapi.djoamersfoort.nl");
 
 const SERVER_STATUS_URL = 'https://wapi.djoamersfoort.nl/laptop/status/';
 const SCHEDULE_API_URL = "https://wapi.djoamersfoort.nl/laptop/schedule/";
@@ -16,6 +19,7 @@ function createMainWindow() {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        show: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
@@ -48,6 +52,7 @@ function createLockWindows() {
         // Hoofdscherm krijgt afsluitknop, extra schermen alleen tekst
         if (index === 0) {
             lockWindow.loadFile(path.join(__dirname, 'lockscreen.html'));
+            lockWindow.webContents.openDevTools();
         } else {
             lockWindow.loadFile(path.join(__dirname, 'secondary-lockscreen.html'));
         }
@@ -60,7 +65,9 @@ function createLockWindows() {
     });
 
     // Blokkeer sneltoetsen (ESC, Alt+Tab, etc.)
-    globalShortcut.registerAll(['Alt+Tab', 'Ctrl+Shift+Esc', 'Meta+Tab', 'F11'], () => false);
+    globalShortcut.registerAll(['Alt+Tab', 'Ctrl+Shift+Esc', 'Meta+Tab', 'F11'], () => {
+        ipcMain.emit("mag-niet");
+    });
 }
 
 // Sluit ALLE vergrendelvensters
@@ -72,6 +79,15 @@ function closeLockWindows() {
     globalShortcut.unregisterAll();
 }
 
+function checkStatus(status) {
+    if (status && lockWindows.length === 0) {
+        createLockWindows();
+        // if (mainWindow) mainWindow.hide();
+    } else if (!status && lockWindows.length > 0) {
+        closeLockWindows();
+        // if (mainWindow) mainWindow.show();
+    }
+}
 async function checkLockStatus() {
     try {
         const response1 = await axios.get(SERVER_STATUS_URL);
@@ -134,9 +150,11 @@ ipcMain.on('shutdown', () => {
 
 // Start Electron-app
 app.whenReady().then(() => {
-    app.commandLine.appendSwitch('no-proxy-server');
     createMainWindow();
-    setInterval(checkLockStatus, CHECK_INTERVAL);
+});
+
+socket.on("status", (lockedarray) => {
+    checkStatus(lockedarray.locked);
 });
 
 // Sluit volledig af als de app wordt gesloten (behalve op macOS)
