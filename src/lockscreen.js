@@ -1,5 +1,7 @@
+const WSwal = Swal.mixin({"theme": "dark"});
+
 function confirmShutdown() {
-    Swal.fire({
+    WSwal.fire({
         title: 'Weet je het zeker?',
         text: "Je apparaat wordt afgesloten.",
         icon: 'warning',
@@ -16,7 +18,7 @@ function confirmShutdown() {
 }
 
 function parentAccess() {
-    Swal.fire({
+    WSwal.fire({
         title: 'Ouder toegang',
         input: 'password',
         inputLabel: 'Voer het wachtwoord in',
@@ -29,7 +31,7 @@ function parentAccess() {
         confirmButtonText: 'Verifiëren',
         cancelButtonText: 'Annuleren',
         preConfirm: (password) => {
-            return fetch('https://wilcoadmin.djoamersfoort.nl/verifieerlaptop.php', {
+            return fetch('https://admin.wilcowebsite.nl/verifieerlaptop.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `password=${encodeURIComponent(password)}`
@@ -42,18 +44,12 @@ function parentAccess() {
                 return data;
             })
             .catch(error => {
-                Swal.showValidationMessage(error.message);
+                WSwal.showValidationMessage(error.message);
             });
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('https://wapi.djoamersfoort.nl/laptop/status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({locked : false})
-            });
-
-            Swal.fire({
+            WSwal.fire({
                 title: 'Succes!',
                 text: 'Het apparaat is ontgrendeld.',
                 icon: 'success'
@@ -61,3 +57,11 @@ function parentAccess() {
         }
     });
 }
+
+window.api.onMagNiet((data) => {
+    WSwal.fire({
+        title: 'Niet doen!',
+        text: 'Dat mag niet!',
+        icon: 'error'
+    });
+});

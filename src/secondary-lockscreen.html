@@ -8,6 +8,7 @@
         body {
             margin: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -15,17 +16,29 @@
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
-            user-select: none; /* Voorkomt tekstselectie */
-            -webkit-user-select: none; /* Voor oudere WebKit browsers */
-            -ms-user-select: none; /* Voor nog oudere browsers */
+            user-select: none;
         }
 
         h1 {
-            font-size: 48px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 18px;
+            margin: 10px 0 30px;
+            opacity: 0.8;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Dit apparaat is vergrendeld</h1>
+    <div class="lock-icon">🔒</div>
+    <h1>Tijd voor een pauze</h1>
+    <p>Je ouder heeft dit apparaat vergrendeld</p>
 </body>
 </html>
