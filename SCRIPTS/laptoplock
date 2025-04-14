@@ -1,0 +1,101 @@
+#!/bin/bash
+set -e
+
+APP_NAME="laptoplock"
+INSTALL_DIR="/usr/local/lib/$APP_NAME"
+SERVICE_NAME="$APP_NAME.service"
+EXECUTABLE="$INSTALL_DIR/$APP_NAME"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
+UNPACKED_DIR="/opt/laptoplock-unpacked"
+
+function install_app() {
+  echo "Installeren van $APP_NAME..."
+
+  echo "Kopiëren naar $INSTALL_DIR..."
+  sudo mkdir -p "$INSTALL_DIR"
+  sudo cp -r "$UNPACKED_DIR/"* "$INSTALL_DIR/"
+
+  echo "Systemd servicebestand maken..."
+  XAUTH="/home/$USER/.Xauthority"
+
+  sudo bash -c "cat > $SERVICE_FILE" <<EOF
+[Unit]
+Description=$APP_NAME als systemd service
+After=network.target
+
+[Service]
+ExecStart=$EXECUTABLE
+Restart=always
+User=$USER
+Environment=ELECTRON_ENABLE_LOGGING=true
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=$XAUTH
+WorkingDirectory=$INSTALL_DIR
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  echo "Systemd herladen en service starten..."
+  sudo systemctl daemon-reexec
+  sudo systemctl enable "$SERVICE_NAME"
+  sudo systemctl start "$SERVICE_NAME"
+
+  echo "$APP_NAME is geïnstalleerd en actief."
+}
+
+function uninstall_app() {
+  echo "Verwijderen van $APP_NAME..."
+
+  sudo systemctl stop "$SERVICE_NAME" || true
+  sudo systemctl disable "$SERVICE_NAME" || true
+
+  [ -f "$SERVICE_FILE" ] && sudo rm "$SERVICE_FILE"
+  [ -d "$INSTALL_DIR" ] && sudo rm -rf "$INSTALL_DIR"
+
+  sudo systemctl daemon-reexec
+  sudo systemctl daemon-reload
+
+  echo "$APP_NAME is volledig verwijderd."
+}
+
+function start_app() {
+  echo "Starten van $APP_NAME..."
+  sudo systemctl start "$SERVICE_NAME"
+}
+
+function stop_app() {
+  echo "Stoppen van $APP_NAME..."
+  sudo systemctl stop "$SERVICE_NAME"
+}
+
+function restart_app() {
+  echo "Herstarten van $APP_NAME..."
+  sudo systemctl restart "$SERVICE_NAME"
+}
+
+function status_app() {
+  echo "Status van $APP_NAME:"
+  sudo systemctl status "$SERVICE_NAME"
+}
+
+function logs_app() {
+  echo "Logs van $APP_NAME:"
+  sudo journalctl -u "$SERVICE_NAME" -e --no-pager
+}
+
+function usage() {
+  echo "Gebruik: $APP_NAME {install|uninstall|start|stop|restart|status|logs}"
+  exit 1
+}
+
+case "$1" in
+  install) install_app ;;
+  uninstall) uninstall_app ;;
+  start) start_app ;;
+  stop) stop_app ;;
+  restart) restart_app ;;
+  status) status_app ;;
+  logs) logs_app ;;
+  *) usage ;;
+esac

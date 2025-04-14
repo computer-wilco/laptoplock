@@ -1,5 +1,5 @@
 {
-  "name": "laptopvergrendeling",
+  "name": "laptoplock",
   "version": "1.0.0",
   "description": "Zorgt dat mijn laptop vergrendeld wordt",
   "main": "src/main.js",
@@ -10,7 +10,8 @@
     "build-mac": "electron-builder -m dmg",
     "build-mac-zip": "electron-builder -m zip",
     "build-linux": "electron-builder -l",
-    "build-all": "electron-builder -w -l -m zip"
+    "build-all": "electron-builder -w -l -m zip",
+    "build-linux-unpacked": "electron-builder -l && rm dist/*"
   },
   "keywords": [
     "electron"

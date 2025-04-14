@@ -8,18 +8,36 @@ De software draait op de laptop van het kind, en via een ouderinterface kunnen o
 
 ## Installatie
 
-Installeer `laptoplock` op het apparaat dat je wilt kunnen vergrendelen.
+Installeer `laptoplock` op het apparaat dat u wilt kunnen vergrendelen.
+Voor de meeste commands hier hebt u sudo nodig, hou daar rekening mee.
 
 ```bash
-git clone https://github.com/computer-wilco/laptoplock.git
-cd laptoplock
-npm install
-npm start
+wget https://raw.githubusercontent.com/computer-wilco/laptoplock/master/INSTALL/laptoplock_1.0.0_amd64.deb
+sudo apt deb laptoplock_1.0.0_amd64.deb
+rm laptoplock_1.0.0_amd64.deb
+laptoplock install
 ```
-Let op! `electron-builder` wordt dan ook geïnstalleerd. Je kunt ook voor de `npm install` ook `npm uninstall --save-dev electron-builder` uitvoeren. Dat bespaart een hoop installatietijd.
+Er wordt hard gewerkt aan ondersteuning voor Windows, MacOS en andere versies van Linux, maar momenteel werkt het alleen nog op Debian-gebaseerde Linux versies.
+
+Wanneer u het gewoon even wilt uitzetten of verwijderen:
+```bash
+laptoplock uninstall
+```
+Als u niet wilt dat u kind dit command uitvoert kun u dit uitvoeren:
+```bash
+sudo apt remove laptoplock
+```
+Verder staan er op deze cli ook nog deze commando's:
+```bash
+laptoplock start
+laptoplock stop
+laptoplock restart
+laptoplock status
+laptoplock logs
+```
 
 ## Configuratie
-Let er wel op dat je ook een ouderpagina nodig zult hebben. Hier enkele voorbeelden:
+Let er wel op dat u ook een ouderpagina nodig zult hebben. Hier een voorbeelden:
 Zo zou de ouderpagina eruit kunnen zien:
 ```html
 <!DOCTYPE html>
