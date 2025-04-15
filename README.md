@@ -17,6 +17,7 @@ sudo apt deb laptoplock_1.0.0_amd64.deb
 rm laptoplock_1.0.0_amd64.deb
 laptoplock install
 ```
+**Let op!** De .deb file uit de release v1.0.0 klopt niet helemaal. Pak daarom die deze: `https://raw.githubusercontent.com/computer-wilco/laptoplock/master/INSTALL/laptoplock_1.0.0_amd64.deb`.
 Er wordt hard gewerkt aan ondersteuning voor Windows, MacOS en andere versies van Linux, maar momenteel werkt het alleen nog op Debian-gebaseerde Linux versies.
 
 Wanneer u het gewoon even wilt uitzetten of verwijderen:

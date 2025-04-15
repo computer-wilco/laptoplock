@@ -6,7 +6,7 @@ INSTALL_DIR="/usr/local/lib/$APP_NAME"
 SERVICE_NAME="$APP_NAME.service"
 EXECUTABLE="$INSTALL_DIR/$APP_NAME"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
-ZIP_URL="https://github.com/computer-wilco/laptoplock/releases/download/v1.0.0/laptoplock.zip"
+ZIP_URL="https://github.com/computer-wilco/laptoplock/releases/download/1.0.0/laptoplock.zip"
 TMP_ZIP="/tmp/laptoplock.zip"
 
 function download_zip() {
