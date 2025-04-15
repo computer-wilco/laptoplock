@@ -11,10 +11,8 @@ rm -rf "$BUILD_DIR"
 rm -rf pakket.deb
 rm -rf "../INSTALL/${APP_NAME}_${VERSION}_${ARCH}.deb"
 mkdir -p "$BUILD_DIR/DEBIAN"
-mkdir -p "$BUILD_DIR/opt/$APP_NAME-unpacked"
 mkdir -p "$BUILD_DIR/usr/bin"
 
-cp -r ../dist/linux-unpacked/* "$BUILD_DIR/opt/$APP_NAME-unpacked/"
 cp "$(pwd)/laptoplock" "$BUILD_DIR/usr/bin/$APP_NAME"
 chmod +x "$BUILD_DIR/usr/bin/$APP_NAME"
 
@@ -25,7 +23,7 @@ Section: base
 Priority: optional
 Architecture: $ARCH
 Maintainer: Wilco
-Description: Laptoplock - vergrendel de laptop van uw kind
+Description: Laptoplock - vergrendel de laptop van uw kind - CLI
 EOF
 
 dpkg-deb --build "$BUILD_DIR" pakket.deb

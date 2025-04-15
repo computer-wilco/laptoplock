@@ -8,7 +8,7 @@ De software draait op de laptop van het kind, en via een ouderinterface kunnen o
 
 ## Installatie
 
-Installeer `laptoplock` op het apparaat dat u wilt kunnen vergrendelen.
+Installeer **Laptoplock** op het apparaat dat u wilt kunnen vergrendelen.
 Voor de meeste commands hier hebt u sudo nodig, hou daar rekening mee.
 
 ```bash

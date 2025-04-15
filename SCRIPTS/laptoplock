@@ -6,14 +6,37 @@ INSTALL_DIR="/usr/local/lib/$APP_NAME"
 SERVICE_NAME="$APP_NAME.service"
 EXECUTABLE="$INSTALL_DIR/$APP_NAME"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
-UNPACKED_DIR="/opt/laptoplock-unpacked"
+ZIP_URL="https://raw.githubusercontent.com/computer-wilco/laptoplock/master/INSTALL/laptoplock.zip"
+TMP_ZIP="/tmp/laptoplock.zip"
+
+function download_zip() {
+  echo "Downloaden van $ZIP_URL..."
+
+  if command -v curl >/dev/null 2>&1; then
+    curl -L "$ZIP_URL" -o "$TMP_ZIP"
+  elif command -v wget >/dev/null 2>&1; then
+    wget "$ZIP_URL" -O "$TMP_ZIP"
+  else
+    echo "Fout: curl of wget is vereist om het zipbestand te downloaden."
+    exit 1
+  fi
+
+  if [ ! -f "$TMP_ZIP" ] || [ ! -s "$TMP_ZIP" ]; then
+    echo "Fout: download mislukt of leeg bestand ontvangen."
+    exit 1
+  fi
+}
 
 function install_app() {
   echo "Installeren van $APP_NAME..."
 
-  echo "Kopiëren naar $INSTALL_DIR..."
+  download_zip
+
+  echo "Installatiemap aanmaken: $INSTALL_DIR"
   sudo mkdir -p "$INSTALL_DIR"
-  sudo cp -r "$UNPACKED_DIR/"* "$INSTALL_DIR/"
+
+  echo "Uitpakken in $INSTALL_DIR..."
+  sudo unzip -o "$TMP_ZIP" -d "$INSTALL_DIR"
 
   echo "Systemd servicebestand maken..."
   XAUTH="/home/$USER/.Xauthority"
